@@ -69,10 +69,10 @@ loop:
 				nfiles++
 				nbytes += size
 			}
-        case <- done:
-        	// 耗尽 fileSizes 以允许已有的 goroutine 结束
-        	for range fileSizes {
-        		// 不执行任何操作
+		case <-done:
+			// 耗尽 fileSizes 以允许已有的 goroutine 结束
+			for range fileSizes {
+				// 不执行任何操作
 			}
 		}
 	}

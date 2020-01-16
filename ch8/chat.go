@@ -9,10 +9,11 @@ import (
 
 // 聊天服务器
 // 可以在几个用户之间广播文本消息
-type client chan <- string
+type client chan<- string
+
 var (
-	entering =make(chan client)
-	leaving = make(chan client)
+	entering = make(chan client)
+	leaving  = make(chan client)
 	messages = make(chan string)
 )
 
@@ -43,17 +44,17 @@ func chatBroadcaster() {
 	clients := make(map[client]bool)
 	for {
 		select {
-		case cli := <- entering:
+		case cli := <-entering:
 			// 加入到 clients 中
 			clients[cli] = true
-        case cli:= <- leaving:
-        	// 从 clients 中移除
-    		delete(clients, cli)
-    	case msg := <- messages:
-    		// 向 clients 中的所有元素广播信息
-    		for cli := range clients {
-    			cli <- msg
-    		}
+		case cli := <-leaving:
+			// 从 clients 中移除
+			delete(clients, cli)
+		case msg := <-messages:
+			// 向 clients 中的所有元素广播信息
+			for cli := range clients {
+				cli <- msg
+			}
 		}
 	}
 }
@@ -66,7 +67,6 @@ func chatHandleConn(conn net.Conn) {
 	// 构
 	ch := make(chan string)
 	go chatClientWriter(conn, ch)
-
 
 	who := conn.RemoteAddr().String()
 	ch <- "You are " + who
@@ -84,7 +84,7 @@ func chatHandleConn(conn net.Conn) {
 	conn.Close()
 }
 
-func chatClientWriter(conn net.Conn, ch <- chan string) {
+func chatClientWriter(conn net.Conn, ch <-chan string) {
 	for msg := range ch {
 		// 忽略错误信息
 		fmt.Fprintln(conn, msg)
